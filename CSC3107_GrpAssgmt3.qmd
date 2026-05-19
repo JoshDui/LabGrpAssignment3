@@ -76,21 +76,28 @@ The year rows are filled down, subtotal rows are removed, the ASEAN aggregate co
 #| label: tidy-meat-before-correction
 
 meat_tidy_uncorrected <- meat_raw |>
-  rename(animal = `Animal Type`) |>
-  select(-ASEAN) |>
+  rename(animal = `Animal Type`) |> # Renames Animal Type to animal
+  select(-ASEAN) |>                 # Drop ASEAN column
+
+  # Creates new column `year`
   mutate(year = as.numeric(str_extract(animal, "^\\d{4}$"))) |>
   fill(year) |>
+  # Drop all rows under animal that does not match the following:
   filter(animal %in% c(
     "Beef and Buffalo Meat",
     "Mutton and Goat Meat",
     "Pig meat",
     "Poultry meat"
   )) |>
+  # Convert all remaining columns except animal and year and turns them into country and production 
+
   pivot_longer(
     cols = -c(animal, year),
     names_to = "country",
     values_to = "production"
   ) |>
+
+  # Convert animal values to lower-case and match new states
   mutate(
     animal = recode(
       animal,
@@ -101,6 +108,7 @@ meat_tidy_uncorrected <- meat_raw |>
     ),
     production = as.numeric(production)
   ) |>
+  # Sorting rows in descending order by year, breaking ties with animal and country
   select(country, animal, year, production) |>
   arrange(desc(year), animal, country)
 
@@ -108,7 +116,7 @@ print(head(meat_tidy_uncorrected))
 print(tail(meat_tidy_uncorrected))
 ```
 
-Verifier check: the tidy table has 160 rows, four columns, and exactly the four required animal labels.
+> Verifier Check: the tidy table has 160 rows, four columns, and exactly the four required animal labels.
 
 ```{r}
 #| label: verify-meat-shape-and-animals
@@ -140,11 +148,13 @@ meat_tidy <- meat_tidy_uncorrected |>
     )
   )
 
+# Replaces all 0 elements under Cambodia's mutton and goat section with NA, else we retain the original production value
+
 meat_tidy |>
   filter(country == "Cambodia", animal == "mutton and goat")
 ```
 
-Verifier check: the verifier used a different approach with the `$` operator and compared the result to the Coder's corrected table.
+> Verifier Check: the verifier used a different approach with the `$` operator and compared the result to the Coder's corrected table.
 
 ```{r}
 #| label: verify-cambodia-correction
@@ -215,7 +225,7 @@ pop_tidy <- pop_raw |>
 pop_tidy
 ```
 
-Verifier check: if `trim_ws = FALSE`, the raw workbook preserves the trailing space in `"Malaysia "`. The default `read_xlsx()` setting is `trim_ws = TRUE`, so `pop_tidy$country` contains `"Malaysia"` without the trailing space.
+> Verifier Check: if `trim_ws = FALSE`, the raw workbook preserves the trailing space in `"Malaysia "`. The default `read_xlsx()` setting is `trim_ws = TRUE`, so `pop_tidy$country` contains `"Malaysia"` without the trailing space.
 
 ```{r}
 #| label: verify-malaysia-trailing-space
@@ -255,13 +265,14 @@ A left join preserves every row and the row order of `meat_tidy` while adding po
 #| label: join-meat-population
 
 merged <- meat_tidy |>
+  # Using left_join to preserve every row of meat_tidy
   left_join(pop_tidy, by = c("country", "year")) |>
   select(country, animal, year, production, pop)
 
 merged
 ```
 
-Verifier check: the ordering of the joined table is the same as the ordering of `meat_tidy`.
+> Verifier Check: the ordering of the joined table is the same as the ordering of `meat_tidy`.
 
 ```{r}
 #| label: verify-merged-row-order
@@ -285,7 +296,7 @@ merged <- merged |>
 merged
 ```
 
-Verifier check: the verifier independently recalculated `meat_per_cap` with the `$` operator.
+> Verifier Check: the verifier independently recalculated `meat_per_cap` with the `$` operator.
 
 ```{r}
 #| label: verify-meat-per-capita
