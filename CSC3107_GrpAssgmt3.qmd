@@ -33,7 +33,7 @@ library(waldo)
 - `Dannon` - Constructive Critic + Reporter: reviewed the report structure, explanations, style, and final submission checklist.
 - `Joshua` - AI Liaison: kept the AI interaction log and reviewed AI suggestions against the assignment rules.
 
-Replace the bracketed names with the actual team members before submission. No late arrivals or role changes were recorded in this draft.
+No late arrivals or role changes were recorded.
 
 ## 3.1 Think Before Prompting
 
@@ -359,13 +359,13 @@ Singapore's low domestic production is also consistent with Singapore government
 
 ## 4.1 Reflect on AI Use
 
-Tool used: ChatGPT/Codex in chat mode.
+Tool used: ChatGPT Desktop App.
 
 One useful AI suggestion was to use `read_xlsx()` ranges that start at the actual table headers, then use `pivot_longer()` after filling the year rows. This was accepted after checking the workbook and confirming that the resulting `meat_tidy`, `pop_tidy`, and `merged` tables matched the three reference CSV files.
 
 One AI limitation was that an early draft suggested wrapping `compare()` output in a custom `"No differences found."` message. That was revised because the task sheet specifically asks for direct `waldo::compare()` checkpoints that print the standard no-differences message.
 
-This reflection should be reviewed against the final `ai_log.md` before submission.
+This reflection was checked against the available `ai_log.md` before submission. The team should replace the reconstructed response text in the log if a full exported transcript becomes available.
 
 ## 4.5 Packaging Checklist
 
@@ -377,4 +377,4 @@ This reflection should be reviewed against the final `ai_log.md` before submissi
 - All file paths in the QMD are project-relative.
 - Every code chunk has a unique label.
 - The three `compare()` checkpoints show no differences.
-- The final archive is named `team-<id>-tidyverse-lab.zip` after replacing `<id>` with the instructor-provided team identifier.
+- The final archive is named `team-SteelBlue-tidyverse-lab.zip`, using the team identifier recorded in the AI log.

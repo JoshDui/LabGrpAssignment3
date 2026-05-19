@@ -21,17 +21,17 @@ The per-capita plot should be read as domestic meat production per resident, not
 
 [^oecd-fao-meat]: OECD and FAO. "Meat." *OECD-FAO Agricultural Outlook 2025-2034*. https://www.oecd.org/en/publications/oecd-fao-agricultural-outlook-2025-2034_601276cd-en/full-report/meat_5462e384.html
 
-## AI reflection placeholder
+## AI reflection draft
 
-AI was used as a support tool for drafting concise prose, checking whether the cleaning decisions were clearly justified, and improving the wording of the plot interpretation. The final decisions remained the group's responsibility: we checked the AI suggestions against the workbook, cleaned CSV outputs, and our tidyverse code before including them. Replace this placeholder with the final prompts used, one useful AI suggestion accepted, one suggestion rejected or revised, and one limitation of using AI for this assignment.
+AI was used through ChatGPT Desktop App as a support tool for drafting concise prose, checking whether the cleaning decisions were clearly justified, and improving the wording of the plot interpretation. The final decisions remained the group's responsibility: we checked the AI suggestions against the workbook, cleaned CSV outputs, and our tidyverse code before including them.
 
 ## Roles and contributions
 
-- `[Member 1]` - Data import and tidying: read the Excel workbook, selected the relevant sheets, reshaped the data into tidy form, and documented cleaning assumptions.
-- `[Member 2]` - Data validation: checked row counts, units, country names, years, and the Cambodia mutton/goat missing-value decision against the raw sheet.
-- `[Member 3]` - Visualisation and analysis: built the plots, selected readable labels/scales, and summarised the main production-per-capita patterns.
-- `[Member 4]` - Constructive critic and reporter: reviewed whether the story matched the evidence, wrote the prose sections, and flagged limitations in the interpretation.
-- `[Member 5]` - Packaging and submission lead: rendered the final QMD, checked file paths and dependencies, and assembled the final submission files.
+- `Benjamin` - Data import and tidying: read the Excel workbook, selected the relevant sheets, reshaped the data into tidy form, and documented cleaning assumptions.
+- `MeiYuen` - Data validation: checked row counts, units, country names, years, and the Cambodia mutton/goat missing-value decision against the raw sheet.
+- `Joshua` - Visualisation and analysis: built the plots, selected readable labels/scales, and summarised the main production-per-capita patterns.
+- `Dannon` - Constructive critic and reporter: reviewed whether the story matched the evidence, wrote the prose sections, and flagged limitations in the interpretation.
+- `Joshua` - Packaging and submission lead: rendered the final QMD, checked file paths and dependencies, and assembled the final submission files.
 
 ## Final packaging checklist
 
@@ -43,5 +43,5 @@ AI was used as a support tool for drafting concise prose, checking whether the c
 - [ ] Cambodia mutton/goat `NA` decision is explained in the report.
 - [ ] Plot comment includes the OECD-FAO source and does not overclaim consumption from production data.
 - [ ] AI reflection is completed with the actual group workflow.
-- [ ] Role/contribution list has real member names.
+- [x] Role/contribution list has real member names.
 - [ ] Submission archive follows the module naming instructions and excludes unnecessary cache/temp files.
