@@ -1,0 +1,369 @@
+---
+title: "CSC3107 Tidyverse Lab: ASEAN Per-Capita Meat Production"
+subtitle: "Group Assignment 3"
+date: "2026-05-19"
+format:
+  html:
+    toc: true
+    code-fold: false
+execute:
+  echo: true
+  message: false
+  warning: false
+---
+
+## Setup
+
+Only `tidyverse`, `readxl`, and `waldo` are loaded. The workbook and reference files are read with project-relative paths.
+
+```{r}
+#| label: setup
+#| message: false
+
+library(tidyverse)
+library(readxl)
+library(waldo)
+```
+
+## Team Roles
+
+- `Joshua` - Coder: typed and edited the canonical QMD, kept file paths project-relative, and checked that code chunks run.
+- `Benjamin` - Navigator: tracked the task requirements, checked that all required questions were attempted, and guided the transformation strategy.
+- `MeiYuen` - Verifier: checked row counts, column classes, units, missing values, join behavior, and reference comparisons.
+- `Dannon` - Constructive Critic + Reporter: reviewed the report structure, explanations, style, and final submission checklist.
+- `Joshua` - AI Liaison: kept the AI interaction log and reviewed AI suggestions against the assignment rules.
+
+Replace the bracketed names with the actual team members before submission. No late arrivals or role changes were recorded in this draft.
+
+## 3.1 Think Before Prompting
+
+Before using AI, the team expected the tidy meat table to have one row for each country, animal type, and year. The columns and classes should be:
+
+| Column | Class | Example value |
+|---|---|---|
+| `country` | character | `"Brunei Darussalam"` |
+| `animal` | character | `"beef and buffalo"` |
+| `year` | numeric | `2021` |
+| `production` | numeric | `4.26741` |
+
+The expected number of rows is `10 countries * 4 animal types * 4 years = 160` rows.
+
+Sheet `X.14` is not tidy because years are stored as section rows such as `2021`, `2020`, `2019`, and `2018` instead of values in a `year` column. Countries are spread across many columns, so the country variable is encoded in column headers. The row labels also mix real animal categories with grouping and subtotal rows such as `Livestock production`, `Poultry production`, and `Total meat production`. The sheet also includes presentation material such as title, unit, source, and note rows near the data.
+
+The team predicted that poultry and pig meat would dominate many per-capita values because these are common meats and can usually be produced at larger scale than cattle, sheep, or goats. We also expected Singapore to have low domestic production per resident because of its limited land area and dependence on food imports.
+
+## 3.2 Import the ASEAN Meat Production Data
+
+The relevant meat production table is on sheet `X.14`. The selected range keeps the country-level table and ASEAN aggregate column while excluding title rows and source notes.
+
+```{r}
+#| label: import-meat
+
+meat_raw <- read_xlsx(
+  "ASEAN-Statistical-Yearbook-2023.xlsx",
+  sheet = "X.14",
+  range = "A4:L36"
+)
+
+meat_raw
+```
+
+## 3.3 Tidy the Meat Production Data
+
+The year rows are filled down, subtotal rows are removed, the ASEAN aggregate column is dropped, and the country columns are pivoted into one `country` column.
+
+```{r}
+#| label: tidy-meat-before-correction
+
+meat_tidy_uncorrected <- meat_raw |>
+  rename(animal = `Animal Type`) |>
+  select(-ASEAN) |>
+  mutate(year = as.numeric(str_extract(animal, "^\\d{4}$"))) |>
+  fill(year) |>
+  filter(animal %in% c(
+    "Beef and Buffalo Meat",
+    "Mutton and Goat Meat",
+    "Pig meat",
+    "Poultry meat"
+  )) |>
+  pivot_longer(
+    cols = -c(animal, year),
+    names_to = "country",
+    values_to = "production"
+  ) |>
+  mutate(
+    animal = recode(
+      animal,
+      "Beef and Buffalo Meat" = "beef and buffalo",
+      "Mutton and Goat Meat" = "mutton and goat",
+      "Pig meat" = "pig",
+      "Poultry meat" = "poultry"
+    ),
+    production = as.numeric(production)
+  ) |>
+  select(country, animal, year, production) |>
+  arrange(desc(year), animal, country)
+
+print(head(meat_tidy_uncorrected))
+print(tail(meat_tidy_uncorrected))
+```
+
+Verifier check: the tidy table has 160 rows, four columns, and exactly the four required animal labels.
+
+```{r}
+#| label: verify-meat-shape-and-animals
+
+meat_tidy_uncorrected |>
+  summarise(
+    rows = n(),
+    columns = ncol(meat_tidy_uncorrected),
+    animals = str_c(sort(unique(animal)), collapse = ", ")
+  )
+```
+
+## 3.4 Correct Cambodia's Mutton-and-Goat Entries
+
+Cambodia's mutton-and-goat entries are coded as `0` in the XLSX export, but the PDF source marks those values as unavailable. Treating unavailable data as true zero production would bias the per-capita result downward, so the correction is limited to the four affected observations: Cambodia, `mutton and goat`, and years 2018 through 2021.
+
+```{r}
+#| label: correct-cambodia-mutton-goat
+
+meat_tidy <- meat_tidy_uncorrected |>
+  mutate(
+    production = if_else(
+      country == "Cambodia" &
+        animal == "mutton and goat" &
+        year %in% 2018:2021 &
+        production == 0,
+      NA_real_,
+      production
+    )
+  )
+
+meat_tidy |>
+  filter(country == "Cambodia", animal == "mutton and goat")
+```
+
+Verifier check: the verifier used a different approach with the `$` operator and compared the result to the Coder's corrected table.
+
+```{r}
+#| label: verify-cambodia-correction
+
+meat_tidy_verifier <- meat_tidy_uncorrected
+meat_tidy_verifier$production[
+  meat_tidy_verifier$country == "Cambodia" &
+    meat_tidy_verifier$animal == "mutton and goat" &
+    meat_tidy_verifier$year %in% 2018:2021 &
+    meat_tidy_verifier$production == 0
+] <- NA_real_
+
+compare(meat_tidy, meat_tidy_verifier, tolerance = 1e-6)
+```
+
+The first and last six rows after correction confirm the requested ordering.
+
+```{r}
+#| label: show-meat-tidy
+
+print(head(meat_tidy))
+print(tail(meat_tidy))
+```
+
+## 3.5 Checkpoint: Compare `meat_tidy` to Reference Data
+
+```{r}
+#| label: compare-meat
+
+meat_ref <- read_csv("meat_tidy_reference.csv", show_col_types = FALSE)
+
+compare(meat_tidy, meat_ref, tolerance = 1e-6)
+```
+
+## 3.6 Tidy the Population Data
+
+The population table is on sheet `I.1`. The range excludes the ASEAN aggregate row.
+
+```{r}
+#| label: import-population
+
+pop_raw <- read_xlsx(
+  "ASEAN-Statistical-Yearbook-2023.xlsx",
+  sheet = "I.1",
+  range = "A5:K15"
+)
+
+pop_raw
+```
+
+```{r}
+#| label: tidy-population
+
+pop_tidy <- pop_raw |>
+  rename(country = Country) |>
+  pivot_longer(
+    cols = -country,
+    names_to = "year",
+    values_to = "pop"
+  ) |>
+  mutate(
+    year = as.numeric(year),
+    pop = as.numeric(pop)
+  ) |>
+  select(country, year, pop) |>
+  arrange(desc(year), country)
+
+pop_tidy
+```
+
+Verifier check: if `trim_ws = FALSE`, the raw workbook preserves the trailing space in `"Malaysia "`. The default `read_xlsx()` setting is `trim_ws = TRUE`, so `pop_tidy$country` contains `"Malaysia"` without the trailing space.
+
+```{r}
+#| label: verify-malaysia-trailing-space
+
+pop_raw_no_trim <- read_xlsx(
+  "ASEAN-Statistical-Yearbook-2023.xlsx",
+  sheet = "I.1",
+  range = "A5:K15",
+  trim_ws = FALSE
+)
+
+pop_raw_no_trim |>
+  filter(str_detect(Country, "Malaysia")) |>
+  transmute(country = Country, characters = nchar(Country))
+
+pop_tidy |>
+  filter(country == "Malaysia") |>
+  distinct(country) |>
+  mutate(characters = nchar(country))
+```
+
+## 3.7 Checkpoint: Compare `pop_tidy` to Reference Data
+
+```{r}
+#| label: compare-population
+
+pop_ref <- read_csv("population_tidy_reference.csv", show_col_types = FALSE)
+
+compare(pop_tidy, pop_ref, tolerance = 1e-6)
+```
+
+## 3.8 Join Meat Production to Population
+
+A left join preserves every row and the row order of `meat_tidy` while adding population values for matching countries and years.
+
+```{r}
+#| label: join-meat-population
+
+merged <- meat_tidy |>
+  left_join(pop_tidy, by = c("country", "year")) |>
+  select(country, animal, year, production, pop)
+
+merged
+```
+
+Verifier check: the ordering of the joined table is the same as the ordering of `meat_tidy`.
+
+```{r}
+#| label: verify-merged-row-order
+
+identical(
+  merged |> select(country, animal, year, production),
+  meat_tidy
+)
+```
+
+## 3.9 Derive Per-Capita Production
+
+Both source variables are stored in thousands, so kilograms per person is calculated as `production / pop * 1000`.
+
+```{r}
+#| label: derive-meat-per-capita
+
+merged <- merged |>
+  mutate(meat_per_cap = production / pop * 1000)
+
+merged
+```
+
+Verifier check: the verifier independently recalculated `meat_per_cap` with the `$` operator.
+
+```{r}
+#| label: verify-meat-per-capita
+
+merged_verifier <- merged |>
+  select(-meat_per_cap)
+
+merged_verifier$meat_per_cap <-
+  merged_verifier$production / merged_verifier$pop * 1000
+
+compare(merged$meat_per_cap, merged_verifier$meat_per_cap, tolerance = 1e-6)
+```
+
+## 3.10 Checkpoint: Compare `merged` to Reference Data
+
+```{r}
+#| label: compare-merged
+
+merged_ref <- read_csv("merged_reference.csv", show_col_types = FALSE)
+
+compare(merged, merged_ref, tolerance = 1e-6)
+```
+
+## 3.11 Visualize the Result
+
+```{r}
+#| label: visualize-meat-per-capita
+
+ggplot(
+  merged,
+  aes(x = year, y = meat_per_cap, color = animal)
+) +
+  geom_line() +
+  geom_point() +
+  labs(
+    x = NULL,
+    y = "Production (kg per person)",
+    color = "Animal",
+    title = "Per-Capita Meat Production in ASEAN, 2018-2021",
+    caption = "Source: ASEAN Statistical Yearbook 2023"
+  ) +
+  xlim(2017.9, 2021.1) +
+  scale_y_log10(
+    breaks = c(0.01, 0.1, 1, 10, 100),
+    labels = c("0.01", "0.1", "1", "10", "100")
+  ) +
+  facet_wrap(~country) +
+  theme(
+    legend.position = "inside",
+    legend.position.inside = c(1, 0),
+    legend.justification.inside = c(1, 0.05)
+  )
+```
+
+## 3.12 Comment on the Plot
+
+The plot should be read as domestic production per resident, not direct meat consumption, because imports and exports are not included. One notable pattern is that poultry is often the highest per-capita meat category, while Singapore is low across all meat types. This is consistent with broader meat-market evidence from the OECD-FAO Agricultural Outlook 2025-2034, which says productivity gains have been greater in pig and poultry production than in cattle and sheep, and that lower relative prices support demand for non-ruminant meats.^[OECD and FAO. "Meat." *OECD-FAO Agricultural Outlook 2025-2034*. https://www.oecd.org/en/publications/oecd-fao-agricultural-outlook-2025-2034_601276cd-en/full-report/meat_5462e384.html]
+
+Singapore's low domestic production is also consistent with Singapore government food-policy material stating that Singapore imports more than 90% of its food.^[Ministry of Sustainability and the Environment. "Food." https://www.mse.gov.sg/policies/food]
+
+## 4.1 Reflect on AI Use
+
+Tool used: ChatGPT/Codex in chat mode.
+
+One useful AI suggestion was to use `read_xlsx()` ranges that start at the actual table headers, then use `pivot_longer()` after filling the year rows. This was accepted after checking the workbook and confirming that the resulting `meat_tidy`, `pop_tidy`, and `merged` tables matched the three reference CSV files.
+
+One AI limitation was that an early draft suggested wrapping `compare()` output in a custom `"No differences found."` message. That was revised because the task sheet specifically asks for direct `waldo::compare()` checkpoints that print the standard no-differences message.
+
+This reflection should be reviewed against the final `ai_log.md` before submission.
+
+## 4.5 Packaging Checklist
+
+- The final QMD renders without errors.
+- The rendered HTML file is included.
+- `ai_log.md` is included and has been reviewed against the actual chat transcript.
+- `ASEAN-Statistical-Yearbook-2023.xlsx` is included.
+- `meat_tidy_reference.csv`, `population_tidy_reference.csv`, and `merged_reference.csv` are included.
+- All file paths in the QMD are project-relative.
+- Every code chunk has a unique label.
+- The three `compare()` checkpoints show no differences.
+- The final archive is named `team-<id>-tidyverse-lab.zip` after replacing `<id>` with the instructor-provided team identifier.

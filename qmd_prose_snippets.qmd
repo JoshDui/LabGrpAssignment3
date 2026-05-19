@@ -1,0 +1,47 @@
+---
+title: "CSC3107 Tidyverse Lab: Report Prose Snippets"
+format: html
+---
+
+## Pre-AI predictions
+
+Before using AI support, we expected poultry and pig meat to dominate the production-per-capita results because they are common everyday meats and can usually be scaled faster than cattle or sheep/goat production. We also expected Singapore to show low domestic meat production per resident because of its limited agricultural land, while smaller-population countries such as Brunei Darussalam might appear high in per-capita plots when production is divided by population. For Cambodia, we expected the mutton/goat series to need checking because repeated exact zeros across all years looked more like a reporting issue than a measured absence of production.
+
+## Why sheet X.14 is not tidy
+
+Sheet `X.14` is a presentation table, not a tidy dataset. First, years are stored as section rows such as `2021`, `2020`, `2019`, and `2018` instead of as values in a single `year` column. Second, countries are spread across many columns, so the country variable is encoded in headers rather than in one column. Third, the row labels mix real animal categories with grouping and subtotal rows such as `Livestock production`, `Poultry production`, and `Total meat production`. The sheet also contains title, unit, source, and note rows inside the same grid as the data. Because one observation is split across several row and column positions, the sheet must be reshaped before analysis.
+
+## Cambodia mutton/goat zeros changed to NA
+
+The Cambodia mutton/goat values were changed from `0` to `NA` because the zeros are not reliable enough to treat as confirmed production measurements. In the raw sheet, zeros are also used in structural grouping rows, so zero is not consistently a numeric observation. Cambodia has exact zeros for mutton/goat across every year while other meat categories are non-zero, which suggests missing or unavailable reporting rather than proven absence. Keeping these as true zeros would create artificially low per-capita values and could bias comparisons, so `NA` is the more conservative cleaning choice. If a source later verifies these as true zero production, they should be recoded back to `0`.
+
+## Plot comment
+
+The per-capita plot should be read as domestic meat production per resident, not direct meat consumption, because imports and exports are not included. The strongest pattern is that poultry dominates the high values: Brunei Darussalam and Malaysia are especially high in poultry production per resident, while Singapore remains low across most meat types. This matches broader meat-market evidence from the OECD-FAO Agricultural Outlook 2025-2034, which links shifts toward poultry and pigmeat to stronger productivity gains and lower relative prices for non-ruminant meats.[^oecd-fao-meat]
+
+[^oecd-fao-meat]: OECD and FAO. "Meat." *OECD-FAO Agricultural Outlook 2025-2034*. https://www.oecd.org/en/publications/oecd-fao-agricultural-outlook-2025-2034_601276cd-en/full-report/meat_5462e384.html
+
+## AI reflection placeholder
+
+AI was used as a support tool for drafting concise prose, checking whether the cleaning decisions were clearly justified, and improving the wording of the plot interpretation. The final decisions remained the group's responsibility: we checked the AI suggestions against the workbook, cleaned CSV outputs, and our tidyverse code before including them. Replace this placeholder with the final prompts used, one useful AI suggestion accepted, one suggestion rejected or revised, and one limitation of using AI for this assignment.
+
+## Roles and contributions
+
+- `[Member 1]` - Data import and tidying: read the Excel workbook, selected the relevant sheets, reshaped the data into tidy form, and documented cleaning assumptions.
+- `[Member 2]` - Data validation: checked row counts, units, country names, years, and the Cambodia mutton/goat missing-value decision against the raw sheet.
+- `[Member 3]` - Visualisation and analysis: built the plots, selected readable labels/scales, and summarised the main production-per-capita patterns.
+- `[Member 4]` - Constructive critic and reporter: reviewed whether the story matched the evidence, wrote the prose sections, and flagged limitations in the interpretation.
+- `[Member 5]` - Packaging and submission lead: rendered the final QMD, checked file paths and dependencies, and assembled the final submission files.
+
+## Final packaging checklist
+
+- [ ] Final `.qmd` renders without errors.
+- [ ] Rendered `.html` or required output file is included.
+- [ ] Workbook and any cleaned CSV files needed for reproducibility are included.
+- [ ] Code uses relative paths, not absolute local paths.
+- [ ] Figures have clear titles, labels, units, and legends.
+- [ ] Cambodia mutton/goat `NA` decision is explained in the report.
+- [ ] Plot comment includes the OECD-FAO source and does not overclaim consumption from production data.
+- [ ] AI reflection is completed with the actual group workflow.
+- [ ] Role/contribution list has real member names.
+- [ ] Submission archive follows the module naming instructions and excludes unnecessary cache/temp files.

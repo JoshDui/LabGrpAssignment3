@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.37">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="dcterms.date" content="2026-05-19">
+
+<title>CSC3107 Tidyverse Lab: ASEAN Per-Capita Meat Production</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="CSC3107_GrpAssgmt3_files/libs/clipboard/clipboard.min.js"></script>
+<script src="CSC3107_GrpAssgmt3_files/libs/quarto-html/quarto.js" type="module"></script>
+<script src="CSC3107_GrpAssgmt3_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="CSC3107_GrpAssgmt3_files/libs/quarto-html/popper.min.js"></script>
+<script src="CSC3107_GrpAssgmt3_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="CSC3107_GrpAssgmt3_files/libs/quarto-html/anchor.min.js"></script>
+<link href="CSC3107_GrpAssgmt3_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="CSC3107_GrpAssgmt3_files/libs/quarto-html/quarto-syntax-highlighting-7f8f88aac4f3542376d5c11b86a4c14d.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="CSC3107_GrpAssgmt3_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="CSC3107_GrpAssgmt3_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="CSC3107_GrpAssgmt3_files/libs/bootstrap/bootstrap-efbb37e9afcc02144ebbc7afd12a776f.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+
+
+</head>
+
+<body class="quarto-light">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+  <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#setup" id="toc-setup" class="nav-link active" data-scroll-target="#setup">Setup</a></li>
+  <li><a href="#team-roles" id="toc-team-roles" class="nav-link" data-scroll-target="#team-roles">Team Roles</a></li>
+  <li><a href="#think-before-prompting" id="toc-think-before-prompting" class="nav-link" data-scroll-target="#think-before-prompting">3.1 Think Before Prompting</a></li>
+  <li><a href="#import-the-asean-meat-production-data" id="toc-import-the-asean-meat-production-data" class="nav-link" data-scroll-target="#import-the-asean-meat-production-data">3.2 Import the ASEAN Meat Production Data</a></li>
+  <li><a href="#tidy-the-meat-production-data" id="toc-tidy-the-meat-production-data" class="nav-link" data-scroll-target="#tidy-the-meat-production-data">3.3 Tidy the Meat Production Data</a></li>
+  <li><a href="#correct-cambodias-mutton-and-goat-entries" id="toc-correct-cambodias-mutton-and-goat-entries" class="nav-link" data-scroll-target="#correct-cambodias-mutton-and-goat-entries">3.4 Correct Cambodia’s Mutton-and-Goat Entries</a></li>
+  <li><a href="#checkpoint-compare-meat_tidy-to-reference-data" id="toc-checkpoint-compare-meat_tidy-to-reference-data" class="nav-link" data-scroll-target="#checkpoint-compare-meat_tidy-to-reference-data">3.5 Checkpoint: Compare <code>meat_tidy</code> to Reference Data</a></li>
+  <li><a href="#tidy-the-population-data" id="toc-tidy-the-population-data" class="nav-link" data-scroll-target="#tidy-the-population-data">3.6 Tidy the Population Data</a></li>
+  <li><a href="#checkpoint-compare-pop_tidy-to-reference-data" id="toc-checkpoint-compare-pop_tidy-to-reference-data" class="nav-link" data-scroll-target="#checkpoint-compare-pop_tidy-to-reference-data">3.7 Checkpoint: Compare <code>pop_tidy</code> to Reference Data</a></li>
+  <li><a href="#join-meat-production-to-population" id="toc-join-meat-production-to-population" class="nav-link" data-scroll-target="#join-meat-production-to-population">3.8 Join Meat Production to Population</a></li>
+  <li><a href="#derive-per-capita-production" id="toc-derive-per-capita-production" class="nav-link" data-scroll-target="#derive-per-capita-production">3.9 Derive Per-Capita Production</a></li>
+  <li><a href="#checkpoint-compare-merged-to-reference-data" id="toc-checkpoint-compare-merged-to-reference-data" class="nav-link" data-scroll-target="#checkpoint-compare-merged-to-reference-data">3.10 Checkpoint: Compare <code>merged</code> to Reference Data</a></li>
+  <li><a href="#visualize-the-result" id="toc-visualize-the-result" class="nav-link" data-scroll-target="#visualize-the-result">3.11 Visualize the Result</a></li>
+  <li><a href="#comment-on-the-plot" id="toc-comment-on-the-plot" class="nav-link" data-scroll-target="#comment-on-the-plot">3.12 Comment on the Plot</a></li>
+  <li><a href="#reflect-on-ai-use" id="toc-reflect-on-ai-use" class="nav-link" data-scroll-target="#reflect-on-ai-use">4.1 Reflect on AI Use</a></li>
+  <li><a href="#packaging-checklist" id="toc-packaging-checklist" class="nav-link" data-scroll-target="#packaging-checklist">4.5 Packaging Checklist</a></li>
+  </ul>
+</nav>
+</div>
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">CSC3107 Tidyverse Lab: ASEAN Per-Capita Meat Production</h1>
+<p class="subtitle lead">Group Assignment 3</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">May 19, 2026</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="setup" class="level2">
+<h2 class="anchored" data-anchor-id="setup">Setup</h2>
+<p>Only <code>tidyverse</code>, <code>readxl</code>, and <code>waldo</code> are loaded. The workbook and reference files are read with project-relative paths.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readxl)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(waldo)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="team-roles" class="level2">
+<h2 class="anchored" data-anchor-id="team-roles">Team Roles</h2>
+<ul>
+<li><code>Joshua</code> - Coder: typed and edited the canonical QMD, kept file paths project-relative, and checked that code chunks run.</li>
+<li><code>Benjamin</code> - Navigator: tracked the task requirements, checked that all required questions were attempted, and guided the transformation strategy.</li>
+<li><code>MeiYuen</code> - Verifier: checked row counts, column classes, units, missing values, join behavior, and reference comparisons.</li>
+<li><code>Dannon</code> - Constructive Critic + Reporter: reviewed the report structure, explanations, style, and final submission checklist.</li>
+<li><code>Joshua</code> - AI Liaison: kept the AI interaction log and reviewed AI suggestions against the assignment rules.</li>
+</ul>
+<p>Replace the bracketed names with the actual team members before submission. No late arrivals or role changes were recorded in this draft.</p>
+</section>
+<section id="think-before-prompting" class="level2">
+<h2 class="anchored" data-anchor-id="think-before-prompting">3.1 Think Before Prompting</h2>
+<p>Before using AI, the team expected the tidy meat table to have one row for each country, animal type, and year. The columns and classes should be:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Column</th>
+<th>Class</th>
+<th>Example value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>country</code></td>
+<td>character</td>
+<td><code>"Brunei Darussalam"</code></td>
+</tr>
+<tr class="even">
+<td><code>animal</code></td>
+<td>character</td>
+<td><code>"beef and buffalo"</code></td>
+</tr>
+<tr class="odd">
+<td><code>year</code></td>
+<td>numeric</td>
+<td><code>2021</code></td>
+</tr>
+<tr class="even">
+<td><code>production</code></td>
+<td>numeric</td>
+<td><code>4.26741</code></td>
+</tr>
+</tbody>
+</table>
+<p>The expected number of rows is <code>10 countries * 4 animal types * 4 years = 160</code> rows.</p>
+<p>Sheet <code>X.14</code> is not tidy because years are stored as section rows such as <code>2021</code>, <code>2020</code>, <code>2019</code>, and <code>2018</code> instead of values in a <code>year</code> column. Countries are spread across many columns, so the country variable is encoded in column headers. The row labels also mix real animal categories with grouping and subtotal rows such as <code>Livestock production</code>, <code>Poultry production</code>, and <code>Total meat production</code>. The sheet also includes presentation material such as title, unit, source, and note rows near the data.</p>
+<p>The team predicted that poultry and pig meat would dominate many per-capita values because these are common meats and can usually be produced at larger scale than cattle, sheep, or goats. We also expected Singapore to have low domestic production per resident because of its limited land area and dependence on food imports.</p>
+</section>
+<section id="import-the-asean-meat-production-data" class="level2">
+<h2 class="anchored" data-anchor-id="import-the-asean-meat-production-data">3.2 Import the ASEAN Meat Production Data</h2>
+<p>The relevant meat production table is on sheet <code>X.14</code>. The selected range keeps the country-level table and ASEAN aggregate column while excluding title rows and source notes.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>meat_raw <span class="ot">&lt;-</span> <span class="fu">read_xlsx</span>(</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">"ASEAN-Statistical-Yearbook-2023.xlsx"</span>,</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">sheet =</span> <span class="st">"X.14"</span>,</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">range =</span> <span class="st">"A4:L36"</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>meat_raw</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 32 × 12
+   `Animal Type`       `Brunei Darussalam` Cambodia Indonesia `Lao PDR` Malaysia
+   &lt;chr&gt;                             &lt;dbl&gt;    &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;
+ 1 2021                            NA          NA         NA      NA       NA   
+ 2 Livestock producti…             NA          NA         NA      NA       NA   
+ 3 Beef and Buffalo M…              4.27       59.5      459.     61.3     40.8 
+ 4 Pig meat                         0.0314    107.       324.    102.     219.  
+ 5 Mutton and Goat Me…              0.0709      0        118.      2.83     3.62
+ 6 Poultry production               0           0          0       0        0   
+ 7 Poultry meat                    31.6        27.8     3889.     43.2   1625.  
+ 8 Total meat product…             36.0       195.      4789.    209.    1889.  
+ 9 2020                             0           0          0       0        0   
+10 Livestock producti…              0           0          0       0        0   
+# ℹ 22 more rows
+# ℹ 6 more variables: Myanmar &lt;dbl&gt;, Philippines &lt;dbl&gt;, Singapore &lt;dbl&gt;,
+#   Thailand &lt;dbl&gt;, `Viet Nam` &lt;dbl&gt;, ASEAN &lt;dbl&gt;</code></pre>
+</div>
+</div>
+</section>
+<section id="tidy-the-meat-production-data" class="level2">
+<h2 class="anchored" data-anchor-id="tidy-the-meat-production-data">3.3 Tidy the Meat Production Data</h2>
+<p>The year rows are filled down, subtotal rows are removed, the ASEAN aggregate column is dropped, and the country columns are pivoted into one <code>country</code> column.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>meat_tidy_uncorrected <span class="ot">&lt;-</span> meat_raw <span class="sc">|&gt;</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">animal =</span> <span class="st">`</span><span class="at">Animal Type</span><span class="st">`</span>) <span class="sc">|&gt;</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>ASEAN) <span class="sc">|&gt;</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">year =</span> <span class="fu">as.numeric</span>(<span class="fu">str_extract</span>(animal, <span class="st">"^</span><span class="sc">\\</span><span class="st">d{4}$"</span>))) <span class="sc">|&gt;</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fill</span>(year) <span class="sc">|&gt;</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(animal <span class="sc">%in%</span> <span class="fu">c</span>(</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Beef and Buffalo Meat"</span>,</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Mutton and Goat Meat"</span>,</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Pig meat"</span>,</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Poultry meat"</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>  )) <span class="sc">|&gt;</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">cols =</span> <span class="sc">-</span><span class="fu">c</span>(animal, year),</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">names_to =</span> <span class="st">"country"</span>,</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_to =</span> <span class="st">"production"</span></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">animal =</span> <span class="fu">recode</span>(</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>      animal,</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Beef and Buffalo Meat"</span> <span class="ot">=</span> <span class="st">"beef and buffalo"</span>,</span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Mutton and Goat Meat"</span> <span class="ot">=</span> <span class="st">"mutton and goat"</span>,</span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Pig meat"</span> <span class="ot">=</span> <span class="st">"pig"</span>,</span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Poultry meat"</span> <span class="ot">=</span> <span class="st">"poultry"</span></span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">production =</span> <span class="fu">as.numeric</span>(production)</span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(country, animal, year, production) <span class="sc">|&gt;</span></span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(year), animal, country)</span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">head</span>(meat_tidy_uncorrected))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 4
+  country           animal            year production
+  &lt;chr&gt;             &lt;chr&gt;            &lt;dbl&gt;      &lt;dbl&gt;
+1 Brunei Darussalam beef and buffalo  2021       4.27
+2 Cambodia          beef and buffalo  2021      59.5 
+3 Indonesia         beef and buffalo  2021     459.  
+4 Lao PDR           beef and buffalo  2021      61.3 
+5 Malaysia          beef and buffalo  2021      40.8 
+6 Myanmar           beef and buffalo  2021     137.  </code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">tail</span>(meat_tidy_uncorrected))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 4
+  country     animal   year production
+  &lt;chr&gt;       &lt;chr&gt;   &lt;dbl&gt;      &lt;dbl&gt;
+1 Malaysia    poultry  2018      1873.
+2 Myanmar     poultry  2018      1896.
+3 Philippines poultry  2018      1380.
+4 Singapore   poultry  2018       107.
+5 Thailand    poultry  2018      1780.
+6 Viet Nam    poultry  2018       947.</code></pre>
+</div>
+</div>
+<p>Verifier check: the tidy table has 160 rows, four columns, and exactly the four required animal labels.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>meat_tidy_uncorrected <span class="sc">|&gt;</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">rows =</span> <span class="fu">n</span>(),</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">columns =</span> <span class="fu">ncol</span>(meat_tidy_uncorrected),</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">animals =</span> <span class="fu">str_c</span>(<span class="fu">sort</span>(<span class="fu">unique</span>(animal)), <span class="at">collapse =</span> <span class="st">", "</span>)</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 3
+   rows columns animals                                        
+  &lt;int&gt;   &lt;int&gt; &lt;chr&gt;                                          
+1   160       4 beef and buffalo, mutton and goat, pig, poultry</code></pre>
+</div>
+</div>
+</section>
+<section id="correct-cambodias-mutton-and-goat-entries" class="level2">
+<h2 class="anchored" data-anchor-id="correct-cambodias-mutton-and-goat-entries">3.4 Correct Cambodia’s Mutton-and-Goat Entries</h2>
+<p>Cambodia’s mutton-and-goat entries are coded as <code>0</code> in the XLSX export, but the PDF source marks those values as unavailable. Treating unavailable data as true zero production would bias the per-capita result downward, so the correction is limited to the four affected observations: Cambodia, <code>mutton and goat</code>, and years 2018 through 2021.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>meat_tidy <span class="ot">&lt;-</span> meat_tidy_uncorrected <span class="sc">|&gt;</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">production =</span> <span class="fu">if_else</span>(</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>      country <span class="sc">==</span> <span class="st">"Cambodia"</span> <span class="sc">&amp;</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>        animal <span class="sc">==</span> <span class="st">"mutton and goat"</span> <span class="sc">&amp;</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>        year <span class="sc">%in%</span> <span class="dv">2018</span><span class="sc">:</span><span class="dv">2021</span> <span class="sc">&amp;</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>        production <span class="sc">==</span> <span class="dv">0</span>,</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>      <span class="cn">NA_real_</span>,</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>      production</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>meat_tidy <span class="sc">|&gt;</span></span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(country <span class="sc">==</span> <span class="st">"Cambodia"</span>, animal <span class="sc">==</span> <span class="st">"mutton and goat"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 4 × 4
+  country  animal           year production
+  &lt;chr&gt;    &lt;chr&gt;           &lt;dbl&gt;      &lt;dbl&gt;
+1 Cambodia mutton and goat  2021         NA
+2 Cambodia mutton and goat  2020         NA
+3 Cambodia mutton and goat  2019         NA
+4 Cambodia mutton and goat  2018         NA</code></pre>
+</div>
+</div>
+<p>Verifier check: the verifier used a different approach with the <code>$</code> operator and compared the result to the Coder’s corrected table.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>meat_tidy_verifier <span class="ot">&lt;-</span> meat_tidy_uncorrected</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>meat_tidy_verifier<span class="sc">$</span>production[</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  meat_tidy_verifier<span class="sc">$</span>country <span class="sc">==</span> <span class="st">"Cambodia"</span> <span class="sc">&amp;</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>    meat_tidy_verifier<span class="sc">$</span>animal <span class="sc">==</span> <span class="st">"mutton and goat"</span> <span class="sc">&amp;</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>    meat_tidy_verifier<span class="sc">$</span>year <span class="sc">%in%</span> <span class="dv">2018</span><span class="sc">:</span><span class="dv">2021</span> <span class="sc">&amp;</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>    meat_tidy_verifier<span class="sc">$</span>production <span class="sc">==</span> <span class="dv">0</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>] <span class="ot">&lt;-</span> <span class="cn">NA_real_</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a><span class="fu">compare</span>(meat_tidy, meat_tidy_verifier, <span class="at">tolerance =</span> <span class="fl">1e-6</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>✔ No differences</code></pre>
+</div>
+</div>
+<p>The first and last six rows after correction confirm the requested ordering.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">head</span>(meat_tidy))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 4
+  country           animal            year production
+  &lt;chr&gt;             &lt;chr&gt;            &lt;dbl&gt;      &lt;dbl&gt;
+1 Brunei Darussalam beef and buffalo  2021       4.27
+2 Cambodia          beef and buffalo  2021      59.5 
+3 Indonesia         beef and buffalo  2021     459.  
+4 Lao PDR           beef and buffalo  2021      61.3 
+5 Malaysia          beef and buffalo  2021      40.8 
+6 Myanmar           beef and buffalo  2021     137.  </code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">tail</span>(meat_tidy))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 4
+  country     animal   year production
+  &lt;chr&gt;       &lt;chr&gt;   &lt;dbl&gt;      &lt;dbl&gt;
+1 Malaysia    poultry  2018      1873.
+2 Myanmar     poultry  2018      1896.
+3 Philippines poultry  2018      1380.
+4 Singapore   poultry  2018       107.
+5 Thailand    poultry  2018      1780.
+6 Viet Nam    poultry  2018       947.</code></pre>
+</div>
+</div>
+</section>
+<section id="checkpoint-compare-meat_tidy-to-reference-data" class="level2">
+<h2 class="anchored" data-anchor-id="checkpoint-compare-meat_tidy-to-reference-data">3.5 Checkpoint: Compare <code>meat_tidy</code> to Reference Data</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>meat_ref <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"meat_tidy_reference.csv"</span>, <span class="at">show_col_types =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="fu">compare</span>(meat_tidy, meat_ref, <span class="at">tolerance =</span> <span class="fl">1e-6</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>✔ No differences</code></pre>
+</div>
+</div>
+</section>
+<section id="tidy-the-population-data" class="level2">
+<h2 class="anchored" data-anchor-id="tidy-the-population-data">3.6 Tidy the Population Data</h2>
+<p>The population table is on sheet <code>I.1</code>. The range excludes the ASEAN aggregate row.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>pop_raw <span class="ot">&lt;-</span> <span class="fu">read_xlsx</span>(</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">"ASEAN-Statistical-Yearbook-2023.xlsx"</span>,</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">sheet =</span> <span class="st">"I.1"</span>,</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">range =</span> <span class="st">"A5:K15"</span></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>pop_raw</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 10 × 11
+   Country `2013` `2014` `2015` `2016` `2017` `2018` `2019` `2020` `2021` `2022`
+   &lt;chr&gt;    &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;
+ 1 Brunei… 4.06e2 4.12e2 4.12e2 4.17e2 4.21e2 4.42e2 4.60e2 4.54e2 4.30e2 4.45e2
+ 2 Cambod… 1.47e4 1.49e4 1.52e4 1.55e4 1.57e4 1.60e4 1.61e4 1.63e4 1.66e4 1.68e4
+ 3 Indone… 2.49e5 2.52e5 2.56e5 2.58e5 2.61e5 2.64e5 2.67e5 2.70e5 2.72e5 2.76e5
+ 4 Lao PDR 6.64e3 6.81e3 6.67e3 6.79e3 6.90e3 7.01e3 7.12e3 7.26e3 7.34e3 7.44e3
+ 5 Malays… 3.02e4 3.07e4 3.12e4 3.16e4 3.20e4 3.24e4 3.25e4 3.24e4 3.26e4 3.27e4
+ 6 Myanmar 5.12e4 5.20e4 5.25e4 5.29e4 5.34e4 5.39e4 5.43e4 5.48e4 5.53e4 5.58e4
+ 7 Philip… 9.82e4 9.99e4 1.02e5 1.03e5 1.05e5 1.06e5 1.07e5 1.09e5 1.10e5 1.12e5
+ 8 Singap… 5.40e3 5.47e3 5.54e3 5.61e3 5.61e3 5.64e3 5.70e3 5.69e3 5.45e3 5.64e3
+ 9 Thaila… 6.68e4 6.70e4 6.72e4 6.75e4 6.77e4 6.78e4 6.56e4 6.54e4 6.52e4 6.61e4
+10 Viet N… 9.02e4 9.12e4 9.22e4 9.33e4 9.43e4 9.54e4 9.65e4 9.76e4 9.85e4 9.95e4</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>pop_tidy <span class="ot">&lt;-</span> pop_raw <span class="sc">|&gt;</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">country =</span> Country) <span class="sc">|&gt;</span></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">cols =</span> <span class="sc">-</span>country,</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">names_to =</span> <span class="st">"year"</span>,</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_to =</span> <span class="st">"pop"</span></span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">year =</span> <span class="fu">as.numeric</span>(year),</span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">pop =</span> <span class="fu">as.numeric</span>(pop)</span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(country, year, pop) <span class="sc">|&gt;</span></span>
+<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(year), country)</span>
+<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a>pop_tidy</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 100 × 3
+   country            year     pop
+   &lt;chr&gt;             &lt;dbl&gt;   &lt;dbl&gt;
+ 1 Brunei Darussalam  2022    445.
+ 2 Cambodia           2022  16843.
+ 3 Indonesia          2022 275720.
+ 4 Lao PDR            2022   7443.
+ 5 Malaysia           2022  32698.
+ 6 Myanmar            2022  55770.
+ 7 Philippines        2022 111572.
+ 8 Singapore          2022   5637.
+ 9 Thailand           2022  66090 
+10 Viet Nam           2022  99462.
+# ℹ 90 more rows</code></pre>
+</div>
+</div>
+<p>Verifier check: if <code>trim_ws = FALSE</code>, the raw workbook preserves the trailing space in <code>"Malaysia "</code>. The default <code>read_xlsx()</code> setting is <code>trim_ws = TRUE</code>, so <code>pop_tidy$country</code> contains <code>"Malaysia"</code> without the trailing space.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>pop_raw_no_trim <span class="ot">&lt;-</span> <span class="fu">read_xlsx</span>(</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">"ASEAN-Statistical-Yearbook-2023.xlsx"</span>,</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">sheet =</span> <span class="st">"I.1"</span>,</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">range =</span> <span class="st">"A5:K15"</span>,</span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">trim_ws =</span> <span class="cn">FALSE</span></span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>pop_raw_no_trim <span class="sc">|&gt;</span></span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">str_detect</span>(Country, <span class="st">"Malaysia"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">transmute</span>(<span class="at">country =</span> Country, <span class="at">characters =</span> <span class="fu">nchar</span>(Country))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 2
+  country     characters
+  &lt;chr&gt;            &lt;int&gt;
+1 "Malaysia "          9</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>pop_tidy <span class="sc">|&gt;</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(country <span class="sc">==</span> <span class="st">"Malaysia"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">distinct</span>(country) <span class="sc">|&gt;</span></span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">characters =</span> <span class="fu">nchar</span>(country))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 2
+  country  characters
+  &lt;chr&gt;         &lt;int&gt;
+1 Malaysia          8</code></pre>
+</div>
+</div>
+</section>
+<section id="checkpoint-compare-pop_tidy-to-reference-data" class="level2">
+<h2 class="anchored" data-anchor-id="checkpoint-compare-pop_tidy-to-reference-data">3.7 Checkpoint: Compare <code>pop_tidy</code> to Reference Data</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>pop_ref <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"population_tidy_reference.csv"</span>, <span class="at">show_col_types =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a><span class="fu">compare</span>(pop_tidy, pop_ref, <span class="at">tolerance =</span> <span class="fl">1e-6</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>✔ No differences</code></pre>
+</div>
+</div>
+</section>
+<section id="join-meat-production-to-population" class="level2">
+<h2 class="anchored" data-anchor-id="join-meat-production-to-population">3.8 Join Meat Production to Population</h2>
+<p>A left join preserves every row and the row order of <code>meat_tidy</code> while adding population values for matching countries and years.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>merged <span class="ot">&lt;-</span> meat_tidy <span class="sc">|&gt;</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(pop_tidy, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"country"</span>, <span class="st">"year"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(country, animal, year, production, pop)</span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>merged</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 160 × 5
+   country           animal            year production     pop
+   &lt;chr&gt;             &lt;chr&gt;            &lt;dbl&gt;      &lt;dbl&gt;   &lt;dbl&gt;
+ 1 Brunei Darussalam beef and buffalo  2021     4.27      430.
+ 2 Cambodia          beef and buffalo  2021    59.5     16592.
+ 3 Indonesia         beef and buffalo  2021   459.     272248.
+ 4 Lao PDR           beef and buffalo  2021    61.3      7338.
+ 5 Malaysia          beef and buffalo  2021    40.8     32576.
+ 6 Myanmar           beef and buffalo  2021   137.      55295.
+ 7 Philippines       beef and buffalo  2021   183.     110198 
+ 8 Singapore         beef and buffalo  2021     0.0342   5454.
+ 9 Thailand          beef and buffalo  2021   155.      65213.
+10 Viet Nam          beef and buffalo  2021   348.      98506.
+# ℹ 150 more rows</code></pre>
+</div>
+</div>
+<p>Verifier check: the ordering of the joined table is the same as the ordering of <code>meat_tidy</code>.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">identical</span>(</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>  merged <span class="sc">|&gt;</span> <span class="fu">select</span>(country, animal, year, production),</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>  meat_tidy</span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] TRUE</code></pre>
+</div>
+</div>
+</section>
+<section id="derive-per-capita-production" class="level2">
+<h2 class="anchored" data-anchor-id="derive-per-capita-production">3.9 Derive Per-Capita Production</h2>
+<p>Both source variables are stored in thousands, so kilograms per person is calculated as <code>production / pop * 1000</code>.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>merged <span class="ot">&lt;-</span> merged <span class="sc">|&gt;</span></span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">meat_per_cap =</span> production <span class="sc">/</span> pop <span class="sc">*</span> <span class="dv">1000</span>)</span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>merged</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 160 × 6
+   country           animal            year production     pop meat_per_cap
+   &lt;chr&gt;             &lt;chr&gt;            &lt;dbl&gt;      &lt;dbl&gt;   &lt;dbl&gt;        &lt;dbl&gt;
+ 1 Brunei Darussalam beef and buffalo  2021     4.27      430.      9.92   
+ 2 Cambodia          beef and buffalo  2021    59.5     16592.      3.59   
+ 3 Indonesia         beef and buffalo  2021   459.     272248.      1.69   
+ 4 Lao PDR           beef and buffalo  2021    61.3      7338.      8.35   
+ 5 Malaysia          beef and buffalo  2021    40.8     32576.      1.25   
+ 6 Myanmar           beef and buffalo  2021   137.      55295.      2.48   
+ 7 Philippines       beef and buffalo  2021   183.     110198       1.66   
+ 8 Singapore         beef and buffalo  2021     0.0342   5454.      0.00628
+ 9 Thailand          beef and buffalo  2021   155.      65213.      2.37   
+10 Viet Nam          beef and buffalo  2021   348.      98506.      3.53   
+# ℹ 150 more rows</code></pre>
+</div>
+</div>
+<p>Verifier check: the verifier independently recalculated <code>meat_per_cap</code> with the <code>$</code> operator.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>merged_verifier <span class="ot">&lt;-</span> merged <span class="sc">|&gt;</span></span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>meat_per_cap)</span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>merged_verifier<span class="sc">$</span>meat_per_cap <span class="ot">&lt;-</span></span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a>  merged_verifier<span class="sc">$</span>production <span class="sc">/</span> merged_verifier<span class="sc">$</span>pop <span class="sc">*</span> <span class="dv">1000</span></span>
+<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-7"><a href="#cb36-7" aria-hidden="true" tabindex="-1"></a><span class="fu">compare</span>(merged<span class="sc">$</span>meat_per_cap, merged_verifier<span class="sc">$</span>meat_per_cap, <span class="at">tolerance =</span> <span class="fl">1e-6</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>✔ No differences</code></pre>
+</div>
+</div>
+</section>
+<section id="checkpoint-compare-merged-to-reference-data" class="level2">
+<h2 class="anchored" data-anchor-id="checkpoint-compare-merged-to-reference-data">3.10 Checkpoint: Compare <code>merged</code> to Reference Data</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>merged_ref <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"merged_reference.csv"</span>, <span class="at">show_col_types =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a><span class="fu">compare</span>(merged, merged_ref, <span class="at">tolerance =</span> <span class="fl">1e-6</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>✔ No differences</code></pre>
+</div>
+</div>
+</section>
+<section id="visualize-the-result" class="level2">
+<h2 class="anchored" data-anchor-id="visualize-the-result">3.11 Visualize the Result</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(</span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>  merged,</span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(<span class="at">x =</span> year, <span class="at">y =</span> meat_per_cap, <span class="at">color =</span> animal)</span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a>) <span class="sc">+</span></span>
+<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>() <span class="sc">+</span></span>
+<span id="cb40-6"><a href="#cb40-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb40-7"><a href="#cb40-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb40-8"><a href="#cb40-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="cn">NULL</span>,</span>
+<span id="cb40-9"><a href="#cb40-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Production (kg per person)"</span>,</span>
+<span id="cb40-10"><a href="#cb40-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">color =</span> <span class="st">"Animal"</span>,</span>
+<span id="cb40-11"><a href="#cb40-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Per-Capita Meat Production in ASEAN, 2018-2021"</span>,</span>
+<span id="cb40-12"><a href="#cb40-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Source: ASEAN Statistical Yearbook 2023"</span></span>
+<span id="cb40-13"><a href="#cb40-13" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb40-14"><a href="#cb40-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlim</span>(<span class="fl">2017.9</span>, <span class="fl">2021.1</span>) <span class="sc">+</span></span>
+<span id="cb40-15"><a href="#cb40-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_log10</span>(</span>
+<span id="cb40-16"><a href="#cb40-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">breaks =</span> <span class="fu">c</span>(<span class="fl">0.01</span>, <span class="fl">0.1</span>, <span class="dv">1</span>, <span class="dv">10</span>, <span class="dv">100</span>),</span>
+<span id="cb40-17"><a href="#cb40-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"0.01"</span>, <span class="st">"0.1"</span>, <span class="st">"1"</span>, <span class="st">"10"</span>, <span class="st">"100"</span>)</span>
+<span id="cb40-18"><a href="#cb40-18" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb40-19"><a href="#cb40-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>country) <span class="sc">+</span></span>
+<span id="cb40-20"><a href="#cb40-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb40-21"><a href="#cb40-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.position =</span> <span class="st">"inside"</span>,</span>
+<span id="cb40-22"><a href="#cb40-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.position.inside =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">0</span>),</span>
+<span id="cb40-23"><a href="#cb40-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.justification.inside =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="fl">0.05</span>)</span>
+<span id="cb40-24"><a href="#cb40-24" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="CSC3107_GrpAssgmt3_files/figure-html/visualize-meat-per-capita-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="comment-on-the-plot" class="level2">
+<h2 class="anchored" data-anchor-id="comment-on-the-plot">3.12 Comment on the Plot</h2>
+<p>The plot should be read as domestic production per resident, not direct meat consumption, because imports and exports are not included. One notable pattern is that poultry is often the highest per-capita meat category, while Singapore is low across all meat types. This is consistent with broader meat-market evidence from the OECD-FAO Agricultural Outlook 2025-2034, which says productivity gains have been greater in pig and poultry production than in cattle and sheep, and that lower relative prices support demand for non-ruminant meats.<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a></p>
+<p>Singapore’s low domestic production is also consistent with Singapore government food-policy material stating that Singapore imports more than 90% of its food.<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a></p>
+</section>
+<section id="reflect-on-ai-use" class="level2">
+<h2 class="anchored" data-anchor-id="reflect-on-ai-use">4.1 Reflect on AI Use</h2>
+<p>Tool used: ChatGPT/Codex in chat mode.</p>
+<p>One useful AI suggestion was to use <code>read_xlsx()</code> ranges that start at the actual table headers, then use <code>pivot_longer()</code> after filling the year rows. This was accepted after checking the workbook and confirming that the resulting <code>meat_tidy</code>, <code>pop_tidy</code>, and <code>merged</code> tables matched the three reference CSV files.</p>
+<p>One AI limitation was that an early draft suggested wrapping <code>compare()</code> output in a custom <code>"No differences found."</code> message. That was revised because the task sheet specifically asks for direct <code>waldo::compare()</code> checkpoints that print the standard no-differences message.</p>
+<p>This reflection should be reviewed against the final <code>ai_log.md</code> before submission.</p>
+</section>
+<section id="packaging-checklist" class="level2">
+<h2 class="anchored" data-anchor-id="packaging-checklist">4.5 Packaging Checklist</h2>
+<ul>
+<li>The final QMD renders without errors.</li>
+<li>The rendered HTML file is included.</li>
+<li><code>ai_log.md</code> is included and has been reviewed against the actual chat transcript.</li>
+<li><code>ASEAN-Statistical-Yearbook-2023.xlsx</code> is included.</li>
+<li><code>meat_tidy_reference.csv</code>, <code>population_tidy_reference.csv</code>, and <code>merged_reference.csv</code> are included.</li>
+<li>All file paths in the QMD are project-relative.</li>
+<li>Every code chunk has a unique label.</li>
+<li>The three <code>compare()</code> checkpoints show no differences.</li>
+<li>The final archive is named <code>team-&lt;id&gt;-tidyverse-lab.zip</code> after replacing <code>&lt;id&gt;</code> with the instructor-provided team identifier.</li>
+</ul>
+</section>
+
+
+<div id="quarto-appendix" class="default"><section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes"><h2 class="anchored quarto-appendix-heading">Footnotes</h2>
+
+<ol>
+<li id="fn1"><p>OECD and FAO. “Meat.” <em>OECD-FAO Agricultural Outlook 2025-2034</em>. https://www.oecd.org/en/publications/oecd-fao-agricultural-outlook-2025-2034_601276cd-en/full-report/meat_5462e384.html<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn2"><p>Ministry of Sustainability and the Environment. “Food.” https://www.mse.gov.sg/policies/food<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+</ol>
+</section></div></main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

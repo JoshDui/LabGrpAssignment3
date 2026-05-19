@@ -1,0 +1,7 @@
+.quarto-local/
+.Rhistory
+.RData
+.Rproj.user/
+*_cache/
+*.knit.md
+team-*-tidyverse-lab.zip
