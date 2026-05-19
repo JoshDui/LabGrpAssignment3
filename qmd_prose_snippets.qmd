@@ -17,9 +17,15 @@ The Cambodia mutton/goat values were changed from `0` to `NA` because the zeros 
 
 ## Plot comment
 
-The per-capita plot should be read as domestic meat production per resident, not direct meat consumption, because imports and exports are not included. The strongest pattern is that poultry dominates the high values: Brunei Darussalam and Malaysia are especially high in poultry production per resident, while Singapore remains low across most meat types. This matches broader meat-market evidence from the OECD-FAO Agricultural Outlook 2025-2034, which links shifts toward poultry and pigmeat to stronger productivity gains and lower relative prices for non-ruminant meats.[^oecd-fao-meat]
+The per-capita plot should be read as domestic meat production per resident, not direct meat consumption, because imports and exports are not included. A country can therefore show low production per person even if residents consume imported meat. Because the y-axis is log-scaled, the interpretation should use the calculated `meat_per_cap` values rather than judging visual slope alone. Across the available animal categories, poultry and pig production explain most of the visible increases and decreases, which matches broader meat-market evidence from the OECD-FAO Agricultural Outlook 2025-2034 linking shifts toward poultry and pigmeat to stronger productivity gains and lower relative prices for non-ruminant meats.[^oecd-fao-meat]
+
+Country-level increments and decrements from 2018 to 2021 show different patterns. Brunei Darussalam has the largest increase, rising from about 59.1 to 83.6 kg/person, mainly because poultry rises from 57.2 to 73.5 kg/person and beef-and-buffalo rises from 1.6 to 9.9 kg/person. Cambodia is almost flat, moving from 11.3 to 11.7 kg/person; pig increases, beef-and-buffalo decreases, and mutton/goat is not interpreted because those values were corrected to `NA`. Indonesia increases from 13.6 to 17.6 kg/person, mainly because poultry rises from 9.8 to 14.3 kg/person. Lao PDR shows a steady increase from 22.3 to 28.5 kg/person, with pig, poultry, and beef-and-buffalo all rising.
+
+Malaysia decreases from about 65.3 to 58.0 kg/person because poultry falls from 57.8 to 49.9 kg/person, even though pig increases slightly. Myanmar has the largest decrease, falling from 65.5 to 20.2 kg/person, with the sharpest drop between 2020 and 2021; poultry, pig, beef-and-buffalo, and mutton/goat all decline. The Philippines also decreases steadily, from 34.3 to 25.1 kg/person, mainly because pig falls from 17.7 to 10.8 kg/person. Singapore changes only slightly, from 22.2 to 21.3 kg/person, because poultry decreases while pig increases; its low domestic production is consistent with Singapore importing more than 90% of its food.[^mse-food] Thailand is stable with a small increase from 43.2 to 44.9 kg/person, mainly from poultry. Viet Nam decreases from 54.5 to 47.3 kg/person because pig falls strongly, even though poultry increases.
 
 [^oecd-fao-meat]: OECD and FAO. "Meat." *OECD-FAO Agricultural Outlook 2025-2034*. https://www.oecd.org/en/publications/oecd-fao-agricultural-outlook-2025-2034_601276cd-en/full-report/meat_5462e384.html
+
+[^mse-food]: Ministry of Sustainability and the Environment. "Food." https://www.mse.gov.sg/policies/food
 
 ## AI reflection draft
 
